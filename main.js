@@ -169,6 +169,24 @@ const channelInfo = {
     }
 };
 
+// Common auto-replies for short everyday messages.
+const commonAutoReplies = {
+    hi: 'হ্যালো! কেমন আছো? 🥰',
+    hello: 'হ্যালো! কেমন আছো তুমি? 🥰',
+    hlo: 'হ্যালো! কেমন আছো? 🥰',
+    hey: 'হেই! কেমন চলছে? 😊',
+    bro: 'কী রে! কিছু বলছিলি? 😁 আমি তো এখানেই আছি! 💕',
+    ki: 'কী রে! কিছু বলছিলি? 😁 আমি তো এখানেই আছি! 💕',
+    acha: 'হুম, ঠিক আছে! আর কিছু জানতে চাইলে বলো! 😊',
+    accha: 'হুম, ঠিক আছে! আর কিছু জানতে চাইলে বলো! 😊',
+    'assalamu alaikum': 'ওয়ালাইকুম আসসালাম! কেমন আছো? 😊',
+    'আসসালামু আলাইকুম': 'ওয়ালাইকুম আসসালাম! কেমন আছো? 😊',
+    'কী': 'কী রে! কিছু বলছিলি? 😁 আমি তো এখানেই আছি! 💕',
+    'আচ্ছা': 'হুম, ঠিক আছে! আর কিছু জানতে চাইলে বলো! 😊',
+    'হাই': 'হ্যালো! কেমন আছো? 🥰',
+    'হ্যালো': 'হ্যালো! কেমন আছো তুমি? 🥰'
+};
+
 async function handleMessages(sock, messageUpdate, printLog) {
     try {
         const { messages, type } = messageUpdate;
@@ -301,6 +319,15 @@ async function handleMessages(sock, messageUpdate, printLog) {
                     return;
                 }
             } catch (e) { }
+        }
+
+        // Reply to common greetings and short conversational messages.
+        if (!message.key.fromMe && !userMessage.startsWith('.')) {
+            const autoReply = commonAutoReplies[userMessage];
+            if (autoReply) {
+                await sock.sendMessage(chatId, { text: autoReply, ...channelInfo }, { quoted: message });
+                return;
+            }
         }
 
         // Then check for command prefix
