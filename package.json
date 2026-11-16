@@ -1,7 +1,7 @@
 {
-  "name": "knightbot",
+  "name": "ram-md",
   "version": "1.0.0",
-  "description": "WhatsApp Bot",
+  "description": "『ＲＡＭ－ＭＤ』⚡ WhatsApp Bot",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -13,12 +13,17 @@
     "install:panel": "npm install --legacy-peer-deps",
     "install:force": "npm install --force",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "docker:build": "docker build -t docker run -e SESSION_ID=$SESSION_ID knightbot"
+    "docker:build": "docker build -t ram-md ."
   },
   "keywords": [
-    "whatsapp-bot"
+    "whatsapp-bot",
+    "ram-md"
   ],
-  "author": "",
+  "author": "𝗦𝗮𝗻𝗷𝗼𝘆 𝗧𝗲𝗰𝗵𝗫 ⚡",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/manoj8927/RAM-MD.git"
+  },
   "license": "ISC",
   "dependencies": {
     "@adiwajshing/keyed-db": "^0.2.4",
