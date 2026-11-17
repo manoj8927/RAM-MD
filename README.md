@@ -130,34 +130,145 @@ If configuration and dependencies are correct, the bot should start.
 
 ---
 
- ❤️ DEPLOYED WITH RAM-MD \</p>
+ ❤️ DEPLOYED WITH RAM-MD 
 
+ ## 🖥️ VPS SPECIAL DEPLOYMENT
 
-Step 2: Clone Repository
+Deploy your **『ＲＡＭ－ＭＤ』⚡ WhatsApp Bot** on any Linux VPS with 24/7 server availability.
+
+### 📥 Step 1: Connect to VPS
+
+Connect using SSH:
+
+```bash
+ssh root@YOUR_VPS_IP
+```
+
+### ⚙️ Step 2: Update VPS
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+### 📦 Step 3: Install Node.js & Git
+
+```bash
+sudo apt install nodejs npm git -y
+```
+
+Check versions:
+
+```bash
+node -v
+npm -v
+git --version
+```
+
+### 📂 Step 4: Clone RAM-MD
+
 ```bash
 git clone https://github.com/manoj8927/RAM-MD.git
 ```
-Step 2: Open Folder
+
+### 📁 Step 5: Open Bot Directory
+
 ```bash
 cd RAM-MD
 ```
-Step 3: Install Dependencies
+
+### 🔧 Step 6: Install Dependencies
+
 ```bash
-npm install
+npm install --legacy-peer-deps
 ```
-Step 4: Configure
 
-Edit the required configuration files:
+### 🔑 Step 7: Configure WhatsApp
 
-- "config.js"
-- "settings.js"
+Configure the required files:
 
-Step 5: Start Bot
+- `config.js`
+- `settings.js`
 
-Check "package.json" for the configured start script.
+Follow the WhatsApp pairing instructions and securely save your session files.
+
+### 🚀 Step 8: Start RAM-MD
+
 ```bash
 npm start
 ```
+
+### ♻️ Step 9: Run Bot 24/7 Using PM2
+
+Install PM2:
+
+```bash
+sudo npm install -g pm2
+```
+
+Start bot:
+
+```bash
+pm2 start npm --name RAM-MD -- start
+```
+
+Check status:
+
+```bash
+pm2 status
+```
+
+View logs:
+
+```bash
+pm2 logs RAM-MD
+```
+
+Enable automatic restart:
+
+```bash
+pm2 startup
+pm2 save
+```
+
+### 🔄 Step 10: Update Bot
+
+```bash
+cd RAM-MD
+git pull
+npm install --legacy-peer-deps
+pm2 restart RAM-MD
+```
+
+### 🌟 VPS Benefits
+
+- ⚡ 24/7 Bot Hosting
+- 🚀 Better Performance
+- 🔄 Automatic Restart with PM2
+- 📦 Full Server Control
+- 🛡️ Linux VPS Support
+- 🔧 Easy Updates
+
+### ⚠️ Important Notes
+
+- Use a supported Node.js LTS version.
+- Keep your WhatsApp session private.
+- Configure firewall and SSH security.
+- VPS uptime depends on your hosting provider.
+- Follow WhatsApp's terms of service.
+
+### 🔗 Useful Links
+
+- GitHub: [https://github.com/manoj8927/RAM-MD](https://github.com/manoj8927/RAM-MD)
+- Download ZIP: [https://github.com/manoj8927/RAM-MD/archive/refs/heads/main.zip](https://github.com/manoj8927/RAM-MD/archive/refs/heads/main.zip)
+
+---
+
+\<p align="center">   ❤️ VPS DEPLOYMENT — RAM-MD \</p>
+
+\<p align="center">   MADE WITH LOVE BY SANJOY X TECH \</p>
+
+
+
 📂 Repository
 
 GitHub: https://github.com/manoj8927/RAM-MD
