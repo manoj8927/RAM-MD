@@ -155,9 +155,9 @@ Edit the required configuration files:
 Step 5: Start Bot
 
 Check "package.json" for the configured start script.
-
+```bash
 npm start
-
+```
 📂 Repository
 
 GitHub: https://github.com/manoj8927/RAM-MD
