@@ -130,21 +130,21 @@ If configuration and dependencies are correct, the bot should start.
 
 ---
 
-\<p align="center">   ❤️ DEPLOYED WITH RAM-MD \</p>
+ ❤️ DEPLOYED WITH RAM-MD \</p>
 
 
-Step 1: Clone Repository
-
+Step 2: Clone Repository
+```bash
 git clone https://github.com/manoj8927/RAM-MD.git
-
+```
 Step 2: Open Folder
-
+```bash
 cd RAM-MD
-
+```
 Step 3: Install Dependencies
-
+```bash
 npm install
-
+```
 Step 4: Configure
 
 Edit the required configuration files:
