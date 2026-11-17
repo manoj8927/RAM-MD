@@ -10,6 +10,7 @@ const settings = {
   commandMode: "public",
   channelLink: 'https://whatsapp.com/channel/0029Vb8ixxHHVvTjIhDSHd01',
   channelJid: '120363413703815929@newsletter',
+  menuImageUrl: 'https://raw.githubusercontent.com/manoj8927/IMG-url/main/manu.jpg',
   maxStoreMessages: 20, 
   storeWriteInterval: 10000,
   description: "This is a bot for managing group commands and automating tasks.",

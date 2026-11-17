@@ -1,6 +1,4 @@
 const settings = require('../settings');
-const fs = require('fs');
-const path = require('path');
 
 async function helpCommand(sock, chatId, message) {
     const helpMessage = `
@@ -231,13 +229,11 @@ async function helpCommand(sock, chatId, message) {
 Join our channel for updates:`;
 
     try {
-        const imagePath = path.join(__dirname, '../assets/bot_image.jpg');
-        
-        if (fs.existsSync(imagePath)) {
-            const imageBuffer = fs.readFileSync(imagePath);
-            
+        const menuImageUrl = settings.menuImageUrl;
+
+        if (menuImageUrl) {
             await sock.sendMessage(chatId, {
-                image: imageBuffer,
+                image: { url: menuImageUrl },
                 caption: helpMessage,
                 contextInfo: {
                     forwardingScore: 1,
@@ -250,7 +246,6 @@ Join our channel for updates:`;
                 }
             },{ quoted: message });
         } else {
-            console.error('Bot image not found at:', imagePath);
             await sock.sendMessage(chatId, { 
                 text: helpMessage,
                 contextInfo: {

@@ -54,6 +54,12 @@ async function instagramCommand(sock, chatId, message) {
             });
         }
 
+        // Extract only the Instagram URL. Passing the full command text
+        // (for example, ".insta https://instagram.com/...") to the scraper
+        // can make it fail internally with a null.toString() error.
+        const urlMatch = text.match(/https?:\/\/(?:www\.)?(?:instagram\.com|instagr\.am)\/[^\s]+/i);
+        const instagramUrl = urlMatch?.[0]?.replace(/[),.!?]+$/, '');
+
         // Check for various Instagram URL formats
         const instagramPatterns = [
             /https?:\/\/(?:www\.)?instagram\.com\//,
@@ -63,7 +69,7 @@ async function instagramCommand(sock, chatId, message) {
             /https?:\/\/(?:www\.)?instagram\.com\/tv\//
         ];
 
-        const isValidUrl = instagramPatterns.some(pattern => pattern.test(text));
+        const isValidUrl = instagramUrl && instagramPatterns.some(pattern => pattern.test(instagramUrl));
         
         if (!isValidUrl) {
             return await sock.sendMessage(chatId, { 
@@ -75,7 +81,7 @@ async function instagramCommand(sock, chatId, message) {
             react: { text: '🔄', key: message.key }
         });
 
-        const downloadData = await igdl(text);
+        const downloadData = await igdl(instagramUrl);
         
         if (!downloadData || !downloadData.data || downloadData.data.length === 0) {
             return await sock.sendMessage(chatId, { 
@@ -101,24 +107,28 @@ async function instagramCommand(sock, chatId, message) {
         for (let i = 0; i < mediaToDownload.length; i++) {
             try {
                 const media = mediaToDownload[i];
-                const mediaUrl = media.url;
+                const mediaUrl = typeof media?.url === 'string' ? media.url : null;
+                if (!mediaUrl) {
+                    console.warn(`Skipping media ${i + 1}: missing media URL`);
+                    continue;
+                }
 
                 // Check if URL ends with common video extensions
                 const isVideo = /\.(mp4|mov|avi|mkv|webm)$/i.test(mediaUrl) || 
                               media.type === 'video' || 
-                              text.includes('/reel/') || 
-                              text.includes('/tv/');
+                              instagramUrl.includes('/reel/') || 
+                              instagramUrl.includes('/tv/');
 
                 if (isVideo) {
                     await sock.sendMessage(chatId, {
                         video: { url: mediaUrl },
                         mimetype: "video/mp4",
-                        caption: "𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗𝗘𝗗 𝗕𝗬 𝗞𝗡𝗜𝗚𝗛𝗧-𝗕𝗢𝗧"
+                        caption: `𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗𝗘𝗗 𝗕𝗬 ${(require('../settings').botName || '『ＲＡＭ－ＭＤ』⚡').toUpperCase()}`
                     }, { quoted: message });
                 } else {
                     await sock.sendMessage(chatId, {
                         image: { url: mediaUrl },
-                        caption: "𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗𝗘𝗗 𝗕𝗬 𝗞𝗡𝗜𝗚𝗛𝗧-𝗕𝗢𝗧"
+                        caption: `𝗗𝗢𝗪𝗡𝗟𝗢𝗔𝗗𝗘𝗗 𝗕𝗬 ${(require('../settings').botName || '『ＲＡＭ－ＭＤ』⚡').toUpperCase()}`
                     }, { quoted: message });
                 }
                 
