@@ -32,6 +32,106 @@ It helps WhatsApp group admins manage their groups easily with powerful commands
 - ❤️ More Features Coming Soon!
 
 📥 Installation
+## ☁️ FREE DEPLOYMENT ON OPTIKLINK
+
+Deploy your **RAM-MD WhatsApp Bot** for free using OptikLink hosting.
+
+### 📥 Step 1 — Download GitHub Repository
+
+**Repository:** [https://github.com/manoj8927/RAM-MD](https://github.com/manoj8927/RAM-MD)
+
+**Direct ZIP Download:**
+
+[Download RAM-MD ZIP](https://github.com/manoj8927/RAM-MD/archive/refs/heads/main.zip)
+
+### 🌐 Step 2 — Create OptikLink Account
+
+1. Visit [https://optiklink.net/](https://optiklink.net/)
+2. Click **Sign in**.
+3. Sign in using your Discord account.
+4. Open the hosting dashboard.
+5. Find the free hosting / bot hosting section.
+
+### 🖥️ Step 3 — Create Server
+
+1. Click **Create Server**.
+2. Select Node.js / Bot Hosting if available.
+3. Enter your server name: `RAM-MD`.
+4. Select an available free allocation.
+5. Create your server.
+
+### 📂 Step 4 — Upload Bot Files
+
+1. Open your server panel.
+2. Go to **File Manager**.
+3. Upload the downloaded `main.zip`.
+4. Extract the ZIP archive.
+5. Make sure `package.json` and `index.js` are in the server's main directory.
+
+### ⚙️ Step 5 — Configure Node.js
+
+Use these settings:
+
+| Configuration   | Value                          |
+| --------------- | ------------------------------ |
+| Runtime         | Node.js                        |
+| Node Version    | 18+                            |
+| Main File       | index.js                       |
+| Install Command | npm install --legacy-peer-deps |
+| Start Command   | npm start                      |
+
+### 📦 Step 6 — Install Dependencies
+
+Open the server console and run:
+
+```bash
+npm install --legacy-peer-deps
+```
+
+Wait until installation finishes.
+
+### 🔧 Step 7 — Configure Bot
+
+Configure the required settings in:
+
+- `config.js`
+- `settings.js`
+
+Follow the bot's pairing instructions to connect WhatsApp.
+
+**Important:** Keep your WhatsApp session files private and persistent. Never share your session credentials.
+
+### 🚀 Step 8 — Start RAM-MD
+
+Run:
+
+```bash
+npm start
+```
+
+If configuration and dependencies are correct, the bot should start.
+
+### 🔄 Step 9 — Keep Your Server Online
+
+- Check your server regularly.
+- Back up your session folder.
+- Monitor console errors.
+- Follow OptikLink's free hosting activity rules.
+
+**OptikLink Free Hosting Notice:** Its published terms require dashboard login at least once every 3 days to keep free servers online. Servers may be deleted after 7 days of inactivity.
+
+### 🔗 Important Links
+
+- [GitHub Repository](https://github.com/manoj8927/RAM-MD)
+- [Download ZIP](https://github.com/manoj8927/RAM-MD/archive/refs/heads/main.zip)
+- [OptikLink Website](https://optiklink.net/)
+- [OptikLink Login](https://optiklink.net/auth)
+- [OptikLink Terms](https://optiklink.net/tos)
+
+---
+
+\<p align="center">   ❤️ DEPLOYED WITH RAM-MD \</p>
+
 
 Step 1: Clone Repository
 
