@@ -82,6 +82,7 @@ const { dareCommand } = require('./commands/dare');
 const { truthCommand } = require('./commands/truth');
 const { clearCommand } = require('./commands/clear');
 const pingCommand = require('./commands/ping');
+const ffinfoCommand = require('./commands/ffinfo');
 const aliveCommand = require('./commands/alive');
 const blurCommand = require('./commands/img-blur');
 const { welcomeCommand, handleJoinEvent } = require('./commands/welcome');
@@ -708,6 +709,10 @@ async function handleMessages(sock, messageUpdate, printLog) {
             case userMessage.startsWith('.demote'):
                 const mentionedJidListDemote = message.message.extendedTextMessage?.contextInfo?.mentionedJid || [];
                 await demoteCommand(sock, chatId, mentionedJidListDemote, message);
+                break;
+            case userMessage === '.ffinfo' || userMessage.startsWith('.ffinfo '):
+                await ffinfoCommand(sock, chatId, rawText.trim().split(/\s+/)[1], message);
+                commandExecuted = true;
                 break;
             case userMessage === '.ping':
                 await pingCommand(sock, chatId, message);
