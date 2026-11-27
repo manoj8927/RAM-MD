@@ -1,3 +1,27 @@
+## 📥 RAM Downloader API — public / keyless mode
+
+The `.ramdl` command in **RAM-MD** no longer requires `RAM_DOWNLOADER_API_KEY` before contacting the API. This supports public downloader endpoints at `https://api.smp-tech.eu.cc`. It does not bypass the API server's own access policy.
+
+To use the public API without a key, on the WhatsApp bot host:
+
+```dotenv
+RAM_DOWNLOADER_API_URL=https://api.smp-tech.eu.cc
+# Leave RAM_DOWNLOADER_API_KEY unset for a public endpoint
+```
+
+Restart the bot and test:
+
+```text
+.ramapi
+.ramdl https://youtube.com/shorts/JZKvwkKuFqQ
+```
+
+If the API responds with **HTTP 401/403**, the server still requires authentication. The API owner must enable anonymous access or supply a private key on the bot host. A public health-check endpoint such as `/api/status` does not establish that media extraction endpoints are public. If a key is configured, RAM-MD sends it as the `x-api-key` header but never displays it in chat.
+
+`npm test` includes `tests/ram-downloader-keyless.test.js`. These unit tests mock the API; actual YouTube/Instagram downloads also depend on API availability, cookies and platform restrictions.
+
+---
+
 ## 🌈 All Status Emojis (162 common reactions)
 
 RAM-MD now includes a **162-emoji preset** for random-looking, deterministic selection per Status. Supported examples include hearts, smiles, faces, hands, flowers, food, animals, celebrations, and more. Only **one emoji** is reacted per Status, with duplicate-event protection.
