@@ -20,7 +20,7 @@ function platformFromURL(source) {
   } catch {
     return null;
   }
-  if (!['https:', 'http:'].includes(parsed.protocol)) return null;
+  if (parsed.protocol !== 'https:') return null;
   const host = parsed.hostname.toLowerCase();
   const domain = name => host === name || host.endsWith('.' + name);
   if (domain('youtube.com') || host === 'youtu.be') return 'youtube';
@@ -53,6 +53,17 @@ function bestWhatsAppVideo(response) {
     return bs - as;
   });
   return playable[0] || null;
+}
+
+function bestAudio(response) {
+  const formats = Array.isArray(response?.formats) ? response.formats : [];
+  const options = formats.filter(f =>
+    f && typeof f.url === 'string' && /^https:\/\//i.test(f.url) &&
+    ['mp3', 'm4a'].includes(String(f.extension || '').toLowerCase()) &&
+    f.audio && f.audio !== 'none' && (!f.video || f.video === 'none')
+  );
+  options.sort((a, b) => (a.extension === 'mp3' ? -1 : 1) - (b.extension === 'mp3' ? -1 : 1));
+  return options[0] || null;
 }
 
 async function ramDownloaderCommand(sock, chatId, message, mode = 'download') {
@@ -94,8 +105,19 @@ async function ramDownloaderCommand(sock, chatId, message, mode = 'download') {
     }
 
     const format = bestWhatsAppVideo(data);
+    if (!format && platform === 'soundcloud') {
+      const audio = bestAudio(data);
+      if (audio) {
+        const mp3 = audio.extension === 'mp3';
+        return sock.sendMessage(chatId, {
+          audio: { url: audio.url },
+          mimetype: mp3 ? 'audio/mpeg' : 'audio/mp4',
+          fileName: mp3 ? 'ram-audio.mp3' : 'ram-audio.m4a'
+        }, { quoted: message });
+      }
+    }
     if (!format) {
-      return reply('Metadata received for ' + platform + ', but the API returned no combined MP4 video+audio stream compatible with this command. Try an existing downloader command instead.');
+      return reply('Metadata received for ' + platform + ', but the API returned no compatible combined MP4 (or supported SoundCloud audio). Try an existing downloader command instead.');
     }
 
     const title = String(data.title || 'Video').slice(0, 180);
