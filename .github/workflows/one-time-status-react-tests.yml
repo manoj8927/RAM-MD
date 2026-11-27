@@ -1,4 +1,4 @@
-name: One-time RAM-MD Auto Status reaction tests
+name: One-time RAM-MD Auto Status reaction tests (rerun)
 on:
   push:
     branches: [main]
