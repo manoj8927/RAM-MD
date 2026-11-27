@@ -61,7 +61,7 @@ test('settings and main handler have button integration and owner protections',(
   const status=fs.readFileSync(path.join(root,'commands/autostatus.js'),'utf8');
   const main=fs.readFileSync(path.join(root,'main.js'),'utf8');
   assert.match(settings,/sendStatusButtons\(sock, chatId, message/);
-  assert.match(status,/sendStatusButtons\(sock, chatId, msg/);
+  assert.match(status,/sendStatusButtons\(\s*sock,\s*chatId,\s*msg/);
   assert.match(main,/extractStatusButtonCommand\(message\)/);
   assert.match(main,/'.autostatus'/);
   assert.match(main,/if \(isOwnerCommand\)/);
