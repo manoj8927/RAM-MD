@@ -260,7 +260,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
         // Only log command usage
         if (userMessage.startsWith('.')) {
-            console.log(`📝 Command used in ${isGroup ? 'group' : 'private'}: ${userMessage}`);
+            console.log(`📝 Command in ${isGroup ? 'group' : 'private'}: ${userMessage.split(/\\s+/)[0]}`);
         }
         // Read bot mode once; don't early-return so moderation can still run in private mode
         let isPublic = true;
@@ -285,7 +285,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         }
 
         // First check if it's a game move
-        if (/^[1-9]$/.test(userMessage) || userMessage.toLowerCase() === 'surrender') {
+        if ((isPublic || isOwnerOrSudoCheck) && (/^[1-9]$/.test(userMessage) || userMessage.toLowerCase() === 'surrender')) {
             await handleTicTacToeMove(sock, chatId, senderId, userMessage);
             return;
         }
@@ -328,7 +328,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
         }
 
         // Reply to common greetings and short conversational messages.
-        if (!message.key.fromMe && !userMessage.startsWith('.')) {
+        if (!message.key.fromMe && (isPublic || isOwnerOrSudoCheck) && !userMessage.startsWith('.')) {
             const autoReply = commonAutoReplies[userMessage];
             if (autoReply) {
                 await sock.sendMessage(chatId, { text: autoReply, ...channelInfo }, { quoted: message });
