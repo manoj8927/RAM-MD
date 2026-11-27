@@ -52,7 +52,8 @@ async function settingsCommand(sock, chatId, message) {
         lines.push(`• Mode: ${mode.isPublic ? 'Public' : 'Private'}`);
         lines.push(`• Auto Status: ${autoStatus.enabled ? 'ON' : 'OFF'}`);
         lines.push(`• Status Reaction: ${autoStatus.reactOn ? 'ON' : 'OFF'}`);
-        lines.push('• Status Emoji: '+(Array.isArray(autoStatus.emojis)&&autoStatus.emojis.length?autoStatus.emojis.join(' '):'💚'));
+        lines.push('• Status Emoji: '+require('./autostatus').describeEmojis(autoStatus));
+        lines.push('• All Emojis: *.autostatus emojis all*');
         lines.push('• Change Emoji: *.autostatus emoji ❤️*');
         lines.push(`• Autoread: ${autoread.enabled ? 'ON' : 'OFF'}`);
         lines.push(`• Autotyping: ${autotyping.enabled ? 'ON' : 'OFF'}`);
