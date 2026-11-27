@@ -1,3 +1,28 @@
+## 📱 Auto Status buttons (owner only)
+
+Open `.settings` or send `.autostatus`. The bot now attempts WhatsApp **quick reply buttons**:
+
+- **✅ Status ON** — sends `.autostatus on`.
+- **❌ Status OFF** — sends `.autostatus off`.
+- **💚 React ON** — sends `.autostatus react on`.
+
+These are attached to the existing Auto Status command and saved state in `data/autoStatus.json`. Reaction OFF remains available with `.autostatus react off`.
+
+Some WhatsApp clients, Baileys versions and message types hide interactive buttons. When buttons cannot be sent, the bot falls back to the typed commands. Button IDs are checked and owner/sudo permissions remain required.
+
+```text
+.settings
+.autostatus
+.autostatus on
+.autostatus off
+.autostatus react on
+.autostatus react off
+```
+
+Run `npm test` after updating, and restart the existing bot process. **Buttons have not been verified on a live WhatsApp client.**
+
+---
+
 ## ⚡ Professional WhatsApp Menu
 
 RAM-MD uses a **categorized, searchable, mobile-friendly menu** instead of sending its entire command list in a single image caption. The default theme is **Neon**. The menu falls back to text when the cover image is unavailable.
