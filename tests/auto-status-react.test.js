@@ -98,3 +98,28 @@ test('native and legacy React OFF selection is safely routed',async()=>{
     assert.ok(['native','legacy'].includes(mode));
     if(mode==='legacy')assert.equal(sock.sent[0][1].buttons[2].buttonId,'.autostatus react off');
 });
+
+test('all preset exposes 162 valid unique emoji and concise summary',()=>{
+    const {ALL_EMOJIS,parseEmojiSelection,isAllEmojis,describeEmojis}=require('../commands/autostatus');
+    assert.equal(ALL_EMOJIS.length,162);
+    assert.equal(new Set(ALL_EMOJIS).size,ALL_EMOJIS.length);
+    assert.ok(ALL_EMOJIS.every(isEmoji));
+    const preset=parseEmojiSelection('emojis',['all']);
+    assert.deepEqual(preset,ALL_EMOJIS);
+    assert.equal(isAllEmojis(preset),true);
+    assert.match(describeEmojis({emojis:preset}),/ALL \(162 emojis\)/);
+    assert.ok(describeEmojis({emojis:preset}).length<100);
+    assert.deepEqual(parseEmojiSelection('emoji',['🥰']),['🥰']);
+    assert.deepEqual(parseEmojiSelection('emojis',['💚','❤️','💚']),['💚','❤️']);
+    assert.throws(()=>parseEmojiSelection('emoji',['all']),/Use 1/);
+    assert.throws(()=>parseEmojiSelection('emojis',new Array(33).fill('💚')),/Use 1/);
+});
+
+test('all emoji preset reacts with only one member of the selection',async()=>{
+    const {ALL_EMOJIS}=require('../commands/autostatus');
+    const sock=socket();
+    await processStatus(sock,incoming('status-all-emoji-preset-010'),cfg(false,true,ALL_EMOJIS));
+    assert.equal(sock.sent.length,1);
+    assert.equal(sock.read.length,0);
+    assert.ok(ALL_EMOJIS.includes(sock.sent[0][1].react.text));
+});
