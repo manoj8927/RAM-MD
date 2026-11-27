@@ -1,3 +1,20 @@
+## 🌈 All Status Emojis (162 common reactions)
+
+RAM-MD now includes a **162-emoji preset** for random-looking, deterministic selection per Status. Supported examples include hearts, smiles, faces, hands, flowers, food, animals, celebrations, and more. Only **one emoji** is reacted per Status, with duplicate-event protection.
+
+```text
+.autostatus emojis all
+.autostatus react on
+.autostatus emojis list
+.autostatus
+```
+
+`.autostatus emojis all` saves the full preset to `data/autoStatus.json`. Existing bots with a saved custom emoji selection must send this command once after updating to select the new preset. The new preset is also the default when no saved emoji selection exists. Manual emoji selections remain supported up to 32 emoji using `.autostatus emojis ❤️ 💚 🔥 ...`, and `.autostatus emoji ❤️` selects one emoji.
+
+**All** here refers to the bundled set of 162 common reaction emojis—not every Unicode emoji. Status delivery depends on WhatsApp/Baileys support and contact privacy.
+
+---
+
 ## 💚 Auto Status emoji reactions
 
 Auto Status **View** and **Reaction** work independently. For WhatsApp Status updates, RAM-MD now sends emoji reactions using the original status message key and the status author's WhatsApp JID; it ignores its own statuses and reaction events, and deduplicates repeated notifications.
@@ -11,7 +28,7 @@ Auto Status **View** and **Reaction** work independently. For WhatsApp Status up
 .autostatus react off
 ```
 
-Set a single emoji using `.autostatus emoji <emoji>` or 1–8 emojis using `.autostatus emojis <emoji...>`. The bot chooses **one** emoji per status from the selection; it does not send multiple reactions to the same status.
+Set a single emoji using `.autostatus emoji <emoji>` or up to 32 custom emojis using `.autostatus emojis <emoji...>`. Use `.autostatus emojis all` to select the complete 162-emoji preset. The bot chooses **one** emoji per status from the selection; it does not send multiple reactions to the same status.
 
 A reaction is an outgoing WhatsApp message. Actual visibility still depends on the bot being able to see the contact's Status and on the installed Baileys/WhatsApp version. Avoid running frequent or repetitive reactions.
 
