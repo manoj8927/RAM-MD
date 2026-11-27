@@ -1,33 +1,33 @@
-const settings = require("../settings");
-async function aliveCommand(sock, chatId, message) {
-    try {
-        const message1 = `*🤖 『ＲＡＭ－ＭＤ』⚡ is Active!*\n\n` +
-                       `*Version:* ${settings.version}\n` +
-                       `*Status:* Online\n` +
-                       `*Mode:* Public\n\n` +
-                       `*🌟 Features:*\n` +
-                       `• Group Management\n` +
-                       `• Antilink Protection\n` +
-                       `• Fun Commands\n` +
-                       `• And more!\n\n` +
-                       `Type *.menu* for full command list`;
-
-        await sock.sendMessage(chatId, {
-            text: message1,
-            contextInfo: {
-                forwardingScore: 999,
-                isForwarded: true,
-                forwardedNewsletterMessageInfo: {
-                    newsletterJid: '120363413703815929@newsletter',
-                    newsletterName: '『ＲＡＭ－ＭＤ』⚡',
-                    serverMessageId: -1
-                }
-            }
-        }, { quoted: message });
-    } catch (error) {
-        console.error('Error in alive command:', error);
-        await sock.sendMessage(chatId, { text: 'Bot is alive and running!' }, { quoted: message });
-    }
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const settings = require('../settings');
+function getMode() {
+  try {
+    const data = JSON.parse(fs.readFileSync(path.join(__dirname,'..','data','messageCount.json'),'utf8'));
+    return data.isPublic === false ? 'PRIVATE 🔒' : 'PUBLIC 🌍';
+  } catch (_) { return 'PUBLIC 🌍'; }
 }
-
+function uptime(seconds) {
+  const n = Math.floor(seconds), d=Math.floor(n/86400), h=Math.floor(n%86400/3600), m=Math.floor(n%3600/60);
+  return [d&&d+'d',h&&h+'h',m&&m+'m',n%60+'s'].filter(Boolean).join(' ');
+}
+async function aliveCommand(sock, chatId, message) {
+  const text = [
+    '╭━━━〔 ⚡ *RAM-MD STATUS* 〕━━━╮',
+    '┃ 🤖 '+(settings.botName || 'RAM-MD'),
+    '┃ ✅ Online & Ready',
+    '┃ 🔐 '+getMode(),
+    '┃ ⏱️ '+uptime(process.uptime()),
+    '┃ 🏷️ v'+(settings.version || '3.0.8'),
+    '╰━━━━━━━━━━━━━━━━━━━━╯',
+    '',
+    '📚 *.menu* — command categories',
+    '📥 *.menu download* — media tools',
+    '🔗 '+(settings.channelLink || 'https://ram-md.blogspot.com/')
+  ].join('\n');
+  try { await sock.sendMessage(chatId,{text},{quoted:message}); }
+  catch (error) { console.error('[alive] failed:',error?.message || error); }
+}
 module.exports = aliveCommand;
+module.exports.getMode = getMode;
