@@ -45,7 +45,8 @@ async function settingsCommand(sock, chatId, message) {
         const antitagCfg = groupId ? (userGroupData.antitag && userGroupData.antitag[groupId]) : null;
 
         const lines = [];
-        lines.push('*BOT SETTINGS*');
+        const menuSettings = require('../lib/menuSettings').read();
+        lines.push('╭━━━〔 ⚙️ *RAM-MD SETTINGS* 〕━━━╮');
         lines.push('');
         lines.push(`• Mode: ${mode.isPublic ? 'Public' : 'Private'}`);
         lines.push(`• Auto Status: ${autoStatus.enabled ? 'ON' : 'OFF'}`);
@@ -54,6 +55,12 @@ async function settingsCommand(sock, chatId, message) {
         lines.push(`• PM Blocker: ${pmblocker.enabled ? 'ON' : 'OFF'}`);
         lines.push(`• Anticall: ${anticall.enabled ? 'ON' : 'OFF'}`);
         lines.push(`• Auto Reaction: ${autoReaction ? 'ON' : 'OFF'}`);
+        lines.push('');
+        lines.push('*🎨 MENU CUSTOMIZATION*');
+        lines.push('• Style: '+menuSettings.style);
+        lines.push('• Menu Picture: '+(menuSettings.imageEnabled?'ON':'OFF'));
+        lines.push('• Footer: '+menuSettings.footer);
+        lines.push('• Change: *.menuset* (owner)');
         if (groupId) {
             lines.push('');
             lines.push(`Group: ${groupId}`);
