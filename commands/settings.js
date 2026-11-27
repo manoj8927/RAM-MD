@@ -10,6 +10,7 @@ function readJsonSafe(path, fallback) {
 }
 
 const isOwnerOrSudo = require('../lib/isOwner');
+const { sendStatusButtons } = require('../lib/statusButtons');
 
 async function settingsCommand(sock, chatId, message) {
     try {
@@ -50,6 +51,7 @@ async function settingsCommand(sock, chatId, message) {
         lines.push('');
         lines.push(`• Mode: ${mode.isPublic ? 'Public' : 'Private'}`);
         lines.push(`• Auto Status: ${autoStatus.enabled ? 'ON' : 'OFF'}`);
+        lines.push(`• Status Reaction: ${autoStatus.reactOn ? 'ON' : 'OFF'}`);
         lines.push(`• Autoread: ${autoread.enabled ? 'ON' : 'OFF'}`);
         lines.push(`• Autotyping: ${autotyping.enabled ? 'ON' : 'OFF'}`);
         lines.push(`• PM Blocker: ${pmblocker.enabled ? 'ON' : 'OFF'}`);
@@ -90,6 +92,12 @@ async function settingsCommand(sock, chatId, message) {
         }
 
         await sock.sendMessage(chatId, { text: lines.join('\n') }, { quoted: message });
+        // Optional buttons for WhatsApp clients; text commands remain a fallback.
+        try {
+            await sendStatusButtons(sock, chatId, message, '⚙️ *Auto Status* — tap ON / OFF');
+        } catch (buttonError) {
+            console.warn('[settings] Auto Status controls unavailable:', buttonError.message);
+        }
     } catch (error) {
         console.error('Error in settings command:', error);
         await sock.sendMessage(chatId, { text: 'Failed to read settings.' }, { quoted: message });
