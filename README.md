@@ -1,3 +1,59 @@
+## ⚡ Professional WhatsApp Menu
+
+RAM-MD uses a **categorized, searchable, mobile-friendly menu** instead of sending its entire command list in a single image caption. The default theme is **Neon**. The menu falls back to text when the cover image is unavailable.
+
+| Send to bot | Action |
+| --- | --- |
+| `.menu` / `.help` | Professional main menu with cover and categories |
+| `.menu 1` | Open numbered category 1 |
+| `.menu download` | Downloads: YouTube, Instagram, Facebook, TikTok and RAM API |
+| `.menu games` | Games, puzzles and challenges |
+| `.menu group` | Group and admin commands |
+| `.menu ai` | AI commands |
+| `.menu all` | Full list split into WhatsApp-friendly messages |
+| `.menu search video` | Find a command by name |
+| `.menuset` | Owner-only menu customization panel |
+| `.settings` | Owner-only current bot and group settings |
+
+The menu displays the actual **Public/Private mode**, uptime, category count and branding. Owner-only commands are not listed for nonowners. Some listed commands require group-admin rights, an API key or a working third-party service.
+
+### 🎨 Menu appearance (owner/sudo only)
+
+```text
+.menuset
+.menuset style neon
+.menuset style classic
+.menuset style minimal
+.menuset image on
+.menuset image off
+.menuset imageurl https://example.com/cover.jpg
+.menuset footer RAM-MD • SANJOY MAHATO
+.menuset reset
+```
+
+Changes save in `data/menuSettings.json` and survive a restart **when the data directory is persistent**. Only public HTTPS image URLs are accepted. Avoid putting credentials, tokens or private files in the menu image URL.
+
+### 🧰 Command reliability changes
+
+- Fixed the `.move <1-9>` Tic-Tac-Toe route (previously referenced an undefined handler).
+- Avoided lowercasing user-supplied `.tts`, `.trt` and `.ss` arguments.
+- Applied complete-token matching for owner/admin commands so similar command names cannot accidentally match.
+- Group administration commands consistently require an admin/owner and the bot to be a group admin.
+- Unknown commands now show a short hint instead of invoking the group chatbot.
+- Fixed the main message handler error scope and tightened owner phone/LID identity checks.
+- `.alive` reports the actual bot mode. `.ping` returns a single status message.
+
+To check source-level regressions after updating:
+
+```bash
+npm install
+npm test
+```
+
+**Testing limitations:** Passing source tests does not verify Baileys connectivity or every media service. Test on a paired bot; real download/AI/Free Fire API commands also depend on external providers and valid credentials.
+
+---
+
 🤖 『ＲＡＭ－ＭＤ』⚡
 
 <p align="center">
