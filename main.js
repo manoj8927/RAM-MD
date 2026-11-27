@@ -462,8 +462,12 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 }
                 await unbanCommand(sock, chatId, message);
                 break;
-            case userMessage === '.help' || userMessage === '.menu' || userMessage === '.bot' || userMessage === '.list':
-                await helpCommand(sock, chatId, message, global.channelLink);
+            case ['.help','.menu','.bot','.list'].some(isExactCommand):
+                await helpCommand(sock, chatId, message, rawText || userMessage, { isOwner: isOwnerOrSudoCheck });
+                commandExecuted = true;
+                break;
+            case isExactCommand('.menuset'):
+                await menusetCommand(sock, chatId, message, rawText || userMessage, isOwnerOrSudoCheck);
                 commandExecuted = true;
                 break;
             case userMessage === '.sticker' || userMessage === '.s':
@@ -479,7 +483,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 await warnCommand(sock, chatId, senderId, mentionedJidListWarn, message);
                 break;
             case userMessage.startsWith('.tts'):
-                const text = userMessage.slice(4).trim();
+                const text = rawText.slice(4).trim();
                 await ttsCommand(sock, chatId, text, message);
                 break;
             case userMessage.startsWith('.delete') || userMessage.startsWith('.del'):
@@ -489,7 +493,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 await attpCommand(sock, chatId, message);
                 break;
 
-            case userMessage === '.settings':
+            case isExactCommand('.settings'):
                 await settingsCommand(sock, chatId, message);
                 break;
             case userMessage.startsWith('.mode'):
@@ -647,7 +651,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 if (isNaN(position)) {
                     await sock.sendMessage(chatId, { text: 'Please provide a valid position number for Tic-Tac-Toe move.', ...channelInfo }, { quoted: message });
                 } else {
-                    tictactoeMove(sock, chatId, senderId, position);
+                    await handleTicTacToeMove(sock, chatId, senderId, String(position));
                 }
                 break;
             case userMessage === '.topmembers':
@@ -1019,11 +1023,11 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 break;
             case userMessage.startsWith('.translate') || userMessage.startsWith('.trt'):
                 const commandLength = userMessage.startsWith('.translate') ? 10 : 4;
-                await handleTranslateCommand(sock, chatId, message, userMessage.slice(commandLength));
+                await handleTranslateCommand(sock, chatId, message, rawText.slice(commandLength));
                 return;
             case userMessage.startsWith('.ss') || userMessage.startsWith('.ssweb') || userMessage.startsWith('.screenshot'):
                 const ssCommandLength = userMessage.startsWith('.screenshot') ? 11 : (userMessage.startsWith('.ssweb') ? 6 : 3);
-                await handleSsCommand(sock, chatId, message, userMessage.slice(ssCommandLength).trim());
+                await handleSsCommand(sock, chatId, message, rawText.slice(ssCommandLength).trim());
                 break;
             case userMessage.startsWith('.areact') || userMessage.startsWith('.autoreact') || userMessage.startsWith('.autoreaction'):
                 await handleAreactCommand(sock, chatId, message, isOwnerOrSudoCheck);
@@ -1234,14 +1238,10 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 await soraCommand(sock, chatId, message);
                 break;
             default:
-                if (isGroup) {
-                    // Handle non-command group messages
-                    if (userMessage) {  // Make sure there's a message
-                        await handleChatbotResponse(sock, chatId, message, userMessage, senderId);
-                    }
-                    await handleTagDetection(sock, chatId, message, senderId);
-                    await handleMentionDetection(sock, chatId, message);
-                }
+                // Unknown dot-prefixed commands must not invoke the group chatbot.
+                await sock.sendMessage(chatId, {
+                    text: '❓ Unknown command. Try *.menu* or *.menu search <name>*.'
+                }, { quoted: message });
                 commandExecuted = false;
                 break;
         }
