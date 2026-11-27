@@ -1,0 +1,19 @@
+name: One-time all Status emoji preset tests
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-all-emojis-tests.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    if: github.repository == 'manoj8927/RAM-MD'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Auto Status, 162-emoji preset and quick replies
+        run: node --test tests/auto-status-react.test.js tests/status-buttons.test.js
