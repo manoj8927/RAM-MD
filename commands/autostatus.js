@@ -162,7 +162,7 @@ async function autoStatusCommand(sock,chatId,msg,args = []) {
                 '💬 .settings'
             ].join('\n');
             await reply(result);
-            try { await sendStatusButtons(sock,chatId,msg,'💚 *Auto Status Controls*'); }
+            try { await sendStatusButtons(sock,chatId,msg,'💚 *Auto Status Controls*',{reactOn:config.reactOn}); }
             catch (error) { console.warn('[autostatus] quick controls unavailable:',error?.message); }
             return;
         }
