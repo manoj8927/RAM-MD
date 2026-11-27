@@ -2,7 +2,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const isOwnerOrSudo = require('../lib/isOwner');
 const { sendStatusButtons } = require('../lib/statusButtons');
 
 const configPath = path.join(__dirname, '..', 'data', 'autoStatus.json');
@@ -142,6 +141,7 @@ async function autoStatusCommand(sock,chatId,msg,args = []) {
     const reply = text => sock.sendMessage(chatId,{text},{quoted:msg});
     try {
         const senderId = msg.key.participant || msg.key.remoteJid;
+        const isOwnerOrSudo = require('../lib/isOwner');
         if (!msg.key.fromMe && !await isOwnerOrSudo(senderId,sock,chatId))
             return reply('❌ Only the bot owner or sudo can control Auto Status.');
 
