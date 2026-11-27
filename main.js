@@ -151,6 +151,7 @@ const { igsCommand } = require('./commands/igs');
 const { anticallCommand, readState: readAnticallState } = require('./commands/anticall');
 const { pmblockerCommand, readState: readPmBlockerState } = require('./commands/pmblocker');
 const settingsCommand = require('./commands/settings');
+const { extractStatusButtonCommand } = require('./lib/statusButtons');
 const soraCommand = require('./commands/sora');
 
 // Global settings
@@ -248,6 +249,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
             message.message?.imageMessage?.caption?.trim() ||
             message.message?.videoMessage?.caption?.trim() ||
             message.message?.buttonsResponseMessage?.selectedButtonId?.trim() ||
+            extractStatusButtonCommand(message) ||
             ''
         ).toLowerCase().replace(/\.\s+/g, '.').trim();
 
@@ -886,7 +888,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
             case userMessage === '.clearsession' || userMessage === '.clearsesi':
                 await clearSessionCommand(sock, chatId, message);
                 break;
-            case userMessage.startsWith('.autostatus'):
+            case isExactCommand('.autostatus'):
                 const autoStatusArgs = userMessage.split(' ').slice(1);
                 await autoStatusCommand(sock, chatId, message, autoStatusArgs);
                 break;
