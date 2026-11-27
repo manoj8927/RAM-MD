@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const isOwnerOrSudo = require('../lib/isOwner');
+const { sendStatusButtons } = require('../lib/statusButtons');
 
 const channelInfo = {
     contextInfo: {
@@ -49,6 +50,7 @@ async function autoStatusCommand(sock, chatId, msg, args) {
                 text: `🔄 *Auto Status Settings*\n\n📱 *Auto Status View:* ${status}\n💫 *Status Reactions:* ${reactStatus}\n\n*Commands:*\n.autostatus on - Enable auto status view\n.autostatus off - Disable auto status view\n.autostatus react on - Enable status reactions\n.autostatus react off - Disable status reactions`,
                 ...channelInfo
             });
+            await sendStatusButtons(sock, chatId, msg, '🔄 *Auto Status* — choose ON / OFF');
             return;
         }
 
