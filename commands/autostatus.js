@@ -5,7 +5,11 @@ const path = require('path');
 const { sendStatusButtons } = require('../lib/statusButtons');
 
 const configPath = path.join(__dirname, '..', 'data', 'autoStatus.json');
-const DEFAULTS = Object.freeze({enabled: false, reactOn: false, emojis: ['💚']});
+// Curated, widely recognizable Status reactions; WhatsApp supports one emoji per Status.
+const ALL_EMOJIS = Object.freeze(["💚","❤️","🩷","🧡","💛","💙","🩵","💜","🤎","🖤","🤍","💖","💗","💓","💞","💕","💘","💝","💟","❣️","❤️‍🔥","❤️‍🩹","😀","😃","😄","😁","😆","😅","😂","🤣","😊","🙂","🙃","😉","😍","🥰","😘","😗","😙","😚","😋","😛","😝","😜","🤪","🤗","🤭","🫢","🫣","🤔","🫡","🤩","🥳","😎","😇","😢","😭","😔","😞","😕","😟","😮","😱","😳","🤯","😤","😠","😡","😴","🥵","🥶","👍","👎","👏","🙌","💪","🙏","🤝","🤞","✌️","👌","🤘","🤟","🤙","🫶","👀","🔥","✨","🌟","⭐","💯","🎉","🎊","🏆","🥇","💫","🌈","🦋","🌹","🌺","🌸","🌻","🌷","🌼","🍀","☘️","🌿","♻️","☀️","🌙","🌝","⚡","💎","🎁","🎈","🎶","🎵","🎸","📸","📷","🧿","🚀","🎯","🕊️","💐","🍎","🍉","🍓","🍒","🍕","🍔","🍟","🍰","🎂","🍫","☕","🍵","🍿","🐼","🐱","🐶","🦁","🐯","🐸","🐵","🦄","🐬","🌍","🌎","🌏","🏖️","🌊","❄️","🌧️","☁️","🥂","🎨","🎮","🧠","💡","🔔","💌"]);
+const MAX_CUSTOM_EMOJIS = 32;
+const MAX_STORED_EMOJIS = 200;
+const DEFAULTS = Object.freeze({enabled: false, reactOn: false, emojis: ALL_EMOJIS});
 const SEEN_TTL = 30 * 60 * 1000;
 const MAX_SEEN = 500;
 const completed = new Map();
@@ -14,8 +18,8 @@ const inFlight = new Map();
 function readConfig() {
     try {
         const parsed = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {...DEFAULTS};
-        const emojis = Array.isArray(parsed.emojis) && parsed.emojis.length <= 8 &&
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {...DEFAULTS, emojis:[...DEFAULTS.emojis]};
+        const emojis = Array.isArray(parsed.emojis) && parsed.emojis.length <= MAX_STORED_EMOJIS &&
             parsed.emojis.length > 0 && parsed.emojis.every(isEmoji)
             ? parsed.emojis : [...DEFAULTS.emojis];
         return {enabled: parsed.enabled === true, reactOn: parsed.reactOn === true, emojis};
@@ -41,6 +45,30 @@ function isEmoji(value) {
         !/\p{Extended_Pictographic}/u.test(value)) return false;
     const split = new Intl.Segmenter('en',{granularity:'grapheme'});
     return [...split.segment(value)].length === 1;
+}
+
+function isAllEmojis(values) {
+    return Array.isArray(values) && values.length === ALL_EMOJIS.length &&
+        values.every((value, i) => value === ALL_EMOJIS[i]);
+}
+
+function describeEmojis(config) {
+    const values = Array.isArray(config?.emojis) ? config.emojis : [...ALL_EMOJIS];
+    if (isAllEmojis(values)) return 'ALL (' + values.length + ' emojis) 🎉 💚 🔥 ❤️';
+    if (values.length > 12) return values.length + ' selected: ' + values.slice(0, 10).join(' ') + ' ...';
+    return values.join(' ');
+}
+
+function parseEmojiSelection(command, values) {
+    if (values.length === 1 && values[0].toLowerCase() === 'all' && command === 'emojis') {
+        return [...ALL_EMOJIS];
+    }
+    if (values.length === 0 || values.length > MAX_CUSTOM_EMOJIS ||
+        (command === 'emoji' && values.length !== 1) ||
+        values.some(value => !isEmoji(value))) {
+        throw new Error('Use 1–' + MAX_CUSTOM_EMOJIS + ' emojis, or *.autostatus emojis all*.');
+    }
+    return [...new Set(values)];
 }
 
 function pickEmoji(config, id) {
@@ -152,12 +180,14 @@ async function autoStatusCommand(sock,chatId,msg,args = []) {
                 '╭━━〔 💚 *RAM-MD STATUS REACT* 〕━━╮',
                 '┃ 👁️ Auto View: *' + (config.enabled?'ON':'OFF') + '*',
                 '┃ 💚 Auto React: *' + (config.reactOn?'ON':'OFF') + '*',
-                '┃ 🎨 Emojis: ' + config.emojis.join(' '),
+                '┃ 🎨 Emojis: ' + describeEmojis(config),
                 '╰━━━━━━━━━━━━━━━━━━╯',
                 '',
                 '⚙️ .autostatus on / off',
                 '💚 .autostatus react on / off',
                 '🎨 .autostatus emoji ❤️',
+                '🌈 .autostatus emojis all (all common emojis)',
+                '📋 .autostatus emojis list (show all)',
                 '✨ .autostatus emojis 💚 ❤️ 🔥 ♻️',
                 '💬 .settings'
             ].join('\n');
@@ -180,16 +210,27 @@ async function autoStatusCommand(sock,chatId,msg,args = []) {
             config.reactOn = first === 'on';
             saveConfig(config);
             return reply('✅ Auto Status *REACTION ' + (config.reactOn?'ON':'OFF') +
-                '*.\nEmoji: '+config.emojis.join(' '));
+                '*.\nEmojis: '+describeEmojis(config));
         }
         if (command === 'emoji' || command === 'emojis') {
             const values = [first,...extra].filter(Boolean);
-            if (!values.length || values.length > 8 || (command === 'emoji' && values.length !== 1) ||
-                values.some(v=>!isEmoji(v)))
-                return reply('❌ Use 1–8 real emoji (no text).\nExamples:\n.autostatus emoji ❤️\n.autostatus emojis 💚 ❤️ 🔥 ♻️');
-            config.emojis = values;
+            if (command === 'emojis' && values.length === 1 &&
+                values[0].toLowerCase() === 'list') {
+                const groups = [];
+                for (let i = 0; i < ALL_EMOJIS.length; i += 20)
+                    groups.push(ALL_EMOJIS.slice(i, i + 20).join(' '));
+                return reply('🌈 *RAM-MD ALL STATUS EMOJIS (' + ALL_EMOJIS.length +
+                    ')*\n\n' + groups.join('\n') +
+                    '\n\nUse *.autostatus emojis all* to select all.');
+            }
+            try {
+                config.emojis = parseEmojiSelection(command, values);
+            } catch (error) {
+                return reply('❌ ' + error.message +
+                    '\nExamples:\n.autostatus emoji ❤️\n.autostatus emojis all\n.autostatus emojis 💚 ❤️ 🔥 ♻️');
+            }
             saveConfig(config);
-            return reply('✅ Status emoji updated: '+values.join(' ')+
+            return reply('✅ Status emoji set updated: ' + describeEmojis(config) +
                 '\n💚 Enable with *.autostatus react on*.');
         }
         return reply('Unknown option. Send *.autostatus* for settings.');
@@ -201,5 +242,6 @@ async function autoStatusCommand(sock,chatId,msg,args = []) {
 
 module.exports = {
     autoStatusCommand, handleStatusUpdate,
-    readConfig, reactToStatus, processStatus, isEmoji, pickEmoji, isOwnStatus
+    readConfig, reactToStatus, processStatus, isEmoji, pickEmoji, isOwnStatus,
+    ALL_EMOJIS, describeEmojis, parseEmojiSelection, isAllEmojis
 };
