@@ -1,0 +1,19 @@
+name: One-time RAM-MD keyless downloader tests
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-keyless-tests.yml'
+permissions:
+  contents: read
+jobs:
+  keyless-tests:
+    if: github.repository == 'manoj8927/RAM-MD'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test public/keyless and optional private download handling
+        run: node --test tests/ram-downloader-keyless.test.js
