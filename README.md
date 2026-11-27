@@ -1,3 +1,22 @@
+## 💚 Auto Status emoji reactions
+
+Auto Status **View** and **Reaction** work independently. For WhatsApp Status updates, RAM-MD now sends emoji reactions using the original status message key and the status author's WhatsApp JID; it ignores its own statuses and reaction events, and deduplicates repeated notifications.
+
+```text
+.autostatus react on
+.autostatus emoji 💚
+.autostatus emoji ❤️
+.autostatus emoji ♻️
+.autostatus emojis 💚 ❤️ 🔥 ♻️
+.autostatus react off
+```
+
+Set a single emoji using `.autostatus emoji <emoji>` or 1–8 emojis using `.autostatus emojis <emoji...>`. The bot chooses **one** emoji per status from the selection; it does not send multiple reactions to the same status.
+
+A reaction is an outgoing WhatsApp message. Actual visibility still depends on the bot being able to see the contact's Status and on the installed Baileys/WhatsApp version. Avoid running frequent or repetitive reactions.
+
+---
+
 ## 📱 Auto Status buttons (owner only)
 
 Open `.settings` or send `.autostatus`. The bot now attempts WhatsApp **quick reply buttons**:
@@ -6,7 +25,7 @@ Open `.settings` or send `.autostatus`. The bot now attempts WhatsApp **quick re
 - **❌ Status OFF** — sends `.autostatus off`.
 - **💚 React ON** — sends `.autostatus react on`.
 
-These are attached to the existing Auto Status command and saved state in `data/autoStatus.json`. Reaction OFF remains available with `.autostatus react off`.
+These are attached to the existing Auto Status command and saved state in `data/autoStatus.json`. When Auto React is ON, the third quick button becomes **💔 React OFF**. You can also type `.autostatus react off`.
 
 Some WhatsApp clients, Baileys versions and message types hide interactive buttons. When buttons cannot be sent, the bot falls back to the typed commands. Button IDs are checked and owner/sudo permissions remain required.
 
