@@ -89,12 +89,12 @@ async function reactToStatus(sock, key, emoji) {
     }, {statusJidList:[author]});
 }
 
-async function processStatus(sock, msg) {
+async function processStatus(sock, msg, overrideConfig) {
     const key = msg?.key;
     if (!key || key.remoteJid !== 'status@broadcast' || !key.id ||
         !msg?.message || msg.message.reactionMessage || isOwnStatus(sock,key)) return;
 
-    const config = readConfig();
+    const config = overrideConfig || readConfig();
     if (!config.enabled && !config.reactOn) return;
 
     const author = normalizeJid(key.participant);
@@ -130,12 +130,12 @@ async function processStatus(sock, msg) {
     try {await task;} finally {inFlight.delete(lookup);}
 }
 
-async function handleStatusUpdate(sock,status) {
+async function handleStatusUpdate(sock,status,overrideConfig) {
     // Never react to a reaction event, otherwise it can create loops.
     if (!status || status.reaction || status.reactions) return;
     const msgs = Array.isArray(status.messages)
         ? status.messages : (status.key && status.message ? [status] : []);
-    for (const msg of msgs) await processStatus(sock,msg);
+    for (const msg of msgs) await processStatus(sock,msg,overrideConfig);
 }
 
 async function autoStatusCommand(sock,chatId,msg,args = []) {
