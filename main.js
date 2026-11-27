@@ -122,6 +122,7 @@ const setProfilePicture = require('./commands/setpp');
 const { setGroupDescription, setGroupName, setGroupPhoto } = require('./commands/groupmanage');
 const instagramCommand = require('./commands/instagram');
 const facebookCommand = require('./commands/facebook');
+const ramDownloaderCommand = require('./commands/ramdownloader');
 const twitterCommand = require('./commands/twitter');
 const spotifyCommand = require('./commands/spotify');
 const playCommand = require('./commands/play');
@@ -979,6 +980,12 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 break;
             case userMessage.startsWith('.igs'):
                 await igsCommand(sock, chatId, message, false);
+                break;
+            case userMessage === '.ramapi':
+                await ramDownloaderCommand(sock, chatId, message, 'status');
+                break;
+            case userMessage === '.ramdl' || userMessage.startsWith('.ramdl '):
+                await ramDownloaderCommand(sock, chatId, message);
                 break;
             case userMessage.startsWith('.fb') || userMessage.startsWith('.facebook'):
                 await facebookCommand(sock, chatId, message);
