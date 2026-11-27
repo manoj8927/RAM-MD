@@ -42,6 +42,7 @@ const { autoreadCommand, isAutoreadEnabled, handleAutoread } = require('./comman
 // Command imports
 const tagAllCommand = require('./commands/tagall');
 const helpCommand = require('./commands/help');
+const menusetCommand = require('./commands/menuset');
 const banCommand = require('./commands/ban');
 const { promoteCommand } = require('./commands/promote');
 const { demoteCommand } = require('./commands/demote');
@@ -192,6 +193,7 @@ const commonAutoReplies = {
 };
 
 async function handleMessages(sock, messageUpdate, printLog) {
+    let chatId;
     try {
         const { messages, type } = messageUpdate;
         const message = messages[0];
@@ -212,7 +214,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
             return;
         }
 
-        const chatId = message.key.remoteJid;
+        chatId = message.key.remoteJid;
         const senderId = message.key.participant || message.key.remoteJid;
         const isGroup = chatId.endsWith('@g.us');
         const senderIsSudo = await isSudo(senderId);
@@ -356,43 +358,47 @@ async function handleMessages(sock, messageUpdate, printLog) {
             return;
         }
 
-        // List of admin commands
-        const adminCommands = ['.mute', '.unmute', '.ban', '.unban', '.promote', '.demote', '.kick', '.tagall', '.tagnotadmin', '.hidetag', '.antilink', '.antitag', '.antibot', '.nobot', '.setgdesc', '.setgname', '.setgpp', '.groupstatus', '.togstatus', '.swgc', '.gstatus', '.gs'];
-        const isAdminCommand = adminCommands.some(cmd => userMessage.startsWith(cmd));
-
-        // List of owner commands
-        const ownerCommands = ['.mode', '.autostatus', '.savestatus', '.savesm', '.savest', '.antidelete', '.cleartmp', '.setpp', '.clearsession', '.areact', '.autoreact', '.autotyping', '.autoread', '.pmblocker'];
-        const isOwnerCommand = ownerCommands.some(cmd => userMessage.startsWith(cmd));
+        // Match full command tokens, never unrelated prefixes.
+        const isExactCommand = command => userMessage === command || userMessage.startsWith(command + ' ');
+        const groupAdminCommands = [
+            '.mute','.unmute','.promote','.demote','.kick','.tagall',
+            '.tagnotadmin','.hidetag','.tag','.antilink','.antitag',
+            '.antibot','.nobot','.setgdesc','.setgname','.setgpp',
+            '.groupstatus','.togstatus','.swgc','.gstatus','.gs',
+            '.warn','.warnings','.delete','.del','.clear',
+            '.resetlink','.revoke','.anularlink','.antibadword',
+            '.welcome','.goodbye','.chatbot'
+        ];
+        const adminCommands = [...groupAdminCommands,'.ban','.unban'];
+        const isAdminCommand = adminCommands.some(isExactCommand);
+        const ownerCommands = [
+            '.mode','.settings','.menuset','.autostatus','.savestatus',
+            '.savesm','.savest','.antidelete','.cleartmp','.setpp',
+            '.clearsession','.areact','.autoreact','.autoreaction',
+            '.autotyping','.autoread','.pmblocker','.anticall',
+            '.sudo','.update','.setmention','.mention'
+        ];
+        const isOwnerCommand = ownerCommands.some(isExactCommand);
 
         let isSenderAdmin = false;
         let isBotAdmin = false;
 
-        // Check admin status only for admin commands in groups
+        // Apply consistent privileges to group administration commands.
+        if (!isGroup && groupAdminCommands.some(isExactCommand)) {
+            await sock.sendMessage(chatId, {text:'❌ Group-only command.'}, {quoted:message});
+            return;
+        }
         if (isGroup && isAdminCommand) {
             const adminStatus = await isAdmin(sock, chatId, senderId);
             isSenderAdmin = adminStatus.isSenderAdmin;
             isBotAdmin = adminStatus.isBotAdmin;
-
             if (!isBotAdmin) {
-                await sock.sendMessage(chatId, { text: 'Please make the bot an admin to use admin commands.', ...channelInfo }, { quoted: message });
+                await sock.sendMessage(chatId, {text:'❌ Make the bot a group admin first.'}, {quoted:message});
                 return;
             }
-
-            if (
-                userMessage.startsWith('.mute') ||
-                userMessage === '.unmute' ||
-                userMessage.startsWith('.ban') ||
-                userMessage.startsWith('.unban') ||
-                userMessage.startsWith('.promote') ||
-                userMessage.startsWith('.demote')
-            ) {
-                if (!isSenderAdmin && !message.key.fromMe) {
-                    await sock.sendMessage(chatId, {
-                        text: 'Sorry, only group admins can use this command.',
-                        ...channelInfo
-                    }, { quoted: message });
-                    return;
-                }
+            if (!isSenderAdmin && !isOwnerOrSudoCheck) {
+                await sock.sendMessage(chatId, {text:'❌ Group admins or bot owner only.'}, {quoted:message});
+                return;
             }
         }
 
