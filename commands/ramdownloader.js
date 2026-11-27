@@ -85,16 +85,17 @@ async function ramDownloaderCommand(sock, chatId, message, mode = 'download') {
     return reply('Usage: .ramdl <public video URL>\nSupported: YouTube, Instagram, Facebook, TikTok, Twitter/X, Pinterest, SoundCloud.');
   }
 
-  const apiKey = process.env.RAM_DOWNLOADER_API_KEY;
-  if (!apiKey) {
-    return reply('RAM Downloader API key is not configured on the bot host (RAM_DOWNLOADER_API_KEY).');
-  }
+  // Public API endpoints can be called without a secret.
+  // Private servers may still require one; only attach the header if configured.
+  const apiKey = String(process.env.RAM_DOWNLOADER_API_KEY || '').trim();
+  const headers = { Accept: 'application/json' };
+  if (apiKey) headers['x-api-key'] = apiKey;
 
   try {
     await sock.sendMessage(chatId, { react: { text: '⏳', key: message.key } });
     const { data } = await axios.get(BASE + '/api/' + platform, {
       params: { url: source },
-      headers: { 'x-api-key': apiKey, Accept: 'application/json' },
+      headers,
       timeout: 75000,
       maxRedirects: 2,
       maxContentLength: 2 * 1024 * 1024
@@ -131,11 +132,16 @@ async function ramDownloaderCommand(sock, chatId, message, mode = 'download') {
     // Never log the API key or a signed download URL.
     const status = err.response?.status;
     console.error('[ram-downloader]', status || err.code || err.message);
-    const reason = status === 401 ? 'API key rejected (HTTP 401).' :
-      status === 429 ? 'API is busy or rate-limited (HTTP 429).' :
-      status === 502 ? 'Media extraction failed (HTTP 502).' :
-      status ? 'HTTP ' + status + '.' :
-      'Could not retrieve or send media. The source may require cookies or media headers.';
+    const reason = (status === 401 || status === 403)
+      ? (apiKey
+          ? 'API rejected the configured key (HTTP ' + status + '). Check RAM_DOWNLOADER_API_KEY.'
+          : 'API server requires authentication (HTTP ' + status + '). To use it without a key, its owner must enable public access.')
+      : status === 429 ? 'API is busy or rate-limited (HTTP 429).'
+      : status === 404 ? 'API download endpoint not found (HTTP 404).'
+      : status === 502 ? 'Media extraction failed (HTTP 502).'
+      : status === 503 ? 'API service is unavailable (HTTP 503).'
+      : status ? 'HTTP ' + status + '.'
+      : 'Could not retrieve or send media. The source may require cookies or media headers.';
     return reply('❌ RAM Downloader: ' + reason);
   }
 }
